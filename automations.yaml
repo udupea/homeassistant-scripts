@@ -1,0 +1,104 @@
+- id: '1684175810305'
+  alias: Reset inverter max power
+  description: If nordpool over 0.8 reset inverter power limit
+  trigger:
+  - type: monetary
+    platform: device
+    device_id: --nordpool sensor id--
+    entity_id: sensor.nordpool_kwh_ee_eur_3_10_02
+    domain: sensor
+    above: 0.8
+  condition:
+  - condition: sun
+    before: sunset
+    after: sunrise
+  action:
+  - service: huawei_solar.reset_maximum_feed_grid_power
+    data:
+      device_id: --huawei inverter id--
+  mode: single
+- id: '1684175919922'
+  alias: Limit inverter power
+  description: If nordpool under 0.8 limit inverter power
+  trigger:
+  - type: monetary
+    platform: device
+    device_id: --nordpool sensor id--
+    entity_id: sensor.nordpool_kwh_ee_eur_3_10_02
+    domain: sensor
+    below: 0.8
+  condition:
+  - condition: sun
+    before: sunset
+    after: sunrise
+  action:
+  - service: huawei_solar.set_maximum_feed_grid_power_percent
+    data:
+      power_percentage: 3
+      device_id: --huawei inverter id--
+  mode: single
+- id: '1684741254754'
+  alias: Price below cheap limit
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.nordpool_kwh_ee_eur_3_10_02
+    below: sensor.odavhind
+    value_template: '{{(states.sensor.odavhind.state) >= (states.sensor.nordpool_kwh_ee_eur_3_10_02.state)}}'
+  - platform: numeric_state
+    entity_id: sensor.nordpool_kwh_ee_eur_3_10_02
+    below: 0.81
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.battery_state_of_capacity
+    below: 90
+  - condition: sun
+    after: sunrise
+    before: sunset
+  action:
+  - device_id: --huawei battery id--
+    domain: select
+    entity_id: select.battery_excess_pv_energy_use_in_tou
+    type: select_last
+  mode: single
+- id: '1684741502861'
+  alias: When battery full excess PV to grid
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.battery_state_of_capacity
+    above: 99
+  condition:
+  - condition: sun
+    after: sunrise
+    before: sunset
+    enabled: false
+  action:
+  - device_id: --huawei battery id--
+    domain: select
+    entity_id: select.battery_excess_pv_energy_use_in_tou
+    type: select_first
+  mode: single
+- id: '1685024424887'
+  alias: Price above cheap limit
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.nordpool_kwh_ee_eur_3_10_02
+    above: sensor.odavhind
+  condition:
+  - condition: sun
+    after: sunrise
+    before: sunset
+  - type: is_monetary
+    condition: device
+    device_id: --nordpool sensor id--
+    entity_id: sensor.nordpool_kwh_ee_eur_3_10_02
+    domain: sensor
+    above: 0.8
+  action:
+  - device_id: --huawei battery id--
+    domain: select
+    entity_id: select.battery_excess_pv_energy_use_in_tou
+    type: select_first
+  mode: single
