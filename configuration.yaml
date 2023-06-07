@@ -1,0 +1,65 @@
+
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - ::1 
+ 
+lovelace:
+#  mode: yaml
+  resources:
+  - url: /local/apexcharts-card.js?v=1.10.0
+    type: module
+
+template:
+
+  - sensor: 
+    - name: laadimisvajadus
+      unique_id: laadimisvajadus
+      state: >-
+          {% set req_hours = 0 %}
+          {% if (states('sensor.battery_state_of_capacity') | float == 100) %} 
+            {% set req_hours = 0 %}
+          {% elif (states('sensor.battery_state_of_capacity') | float >= 80 and states('sensor.battery_state_of_capacity') | float < 100) %} 
+            {% set req_hours = 1 %}
+          {% elif (states('sensor.battery_state_of_capacity') | float >= 50 and states('sensor.battery_state_of_capacity') | float < 80) %} 
+            {% set req_hours = 2 %}
+          {% elif (states('sensor.battery_state_of_capacity') | float >= 25 and states('sensor.battery_state_of_capacity') | float < 50) %} 
+            {% set req_hours = 3 %}
+          {% else %}
+            {% set req_hours = 4 %}
+          {% endif %}
+          {{ req_hours }}
+  - sensor:
+      - name: odavhind
+        unique_id: odavhind
+        state: >-
+          {% set l = state_attr('sensor.nordpool_kwh_ee_eur_3_10_02', 'raw_today') | sort(attribute='value') %}
+          {% set sorted = l | sort(attribute='value') %}
+          {% set evening = now().replace(hour=00, minute=0, second=0, microsecond=0)  + timedelta(days=1) %}
+          {% set filtered = sorted | selectattr('start', '>', now()) | selectattr('start', '<', evening) | list %}
+          {% if filtered %}
+            {% set index = states('sensor.laadimisvajadus') | int - 1 %}
+            {% if index >= 0 and index < filtered | length %}
+              {{ filtered[index].value }}
+            {% else %}
+              Invalid index: {{ index }}
+            {% endif %}
+          {% else %}
+            No filtered entries found
+          {% endif %}
+
