@@ -44,7 +44,6 @@
   - platform: numeric_state
     entity_id: sensor.nordpool_kwh_ee_eur_3_10_02
     below: sensor.odavhind
-    value_template: '{{(states.sensor.odavhind.state) >= (states.sensor.nordpool_kwh_ee_eur_3_10_02.state)}}'
   - platform: numeric_state
     entity_id: sensor.nordpool_kwh_ee_eur_3_10_02
     below: 0.81
@@ -56,7 +55,7 @@
     after: sunrise
     before: sunset
   action:
-  - device_id: --huawei battery id--
+  - device_id: 12329197064b8f38845e5865bd04efea
     domain: select
     entity_id: select.battery_excess_pv_energy_use_in_tou
     type: select_last
