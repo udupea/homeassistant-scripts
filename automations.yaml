@@ -55,7 +55,7 @@
     after: sunrise
     before: sunset
   action:
-  - device_id: 12329197064b8f38845e5865bd04efea
+  - device_id: --huawei battery id--
     domain: select
     entity_id: select.battery_excess_pv_energy_use_in_tou
     type: select_last
