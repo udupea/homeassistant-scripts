@@ -4,7 +4,7 @@
   trigger:
   - type: monetary
     platform: device
-    device_id: f7776f9a9040f3a2f9cdd98af227bbaa
+    device_id: xxxx
     entity_id: sensor.nordpool_kwh_ee_eur_3_10_02
     domain: sensor
     above: 0.8
@@ -15,7 +15,7 @@
   action:
   - service: huawei_solar.reset_maximum_feed_grid_power
     data:
-      device_id: 0eb5649b85041cc761fe4843117b3c15
+      device_id: xxxx
   mode: single
 - id: '1684175919922'
   alias: Limit inverter power
@@ -23,7 +23,7 @@
   trigger:
   - type: monetary
     platform: device
-    device_id: f7776f9a9040f3a2f9cdd98af227bbaa
+    device_id: xxxx
     entity_id: sensor.nordpool_kwh_ee_eur_3_10_02
     domain: sensor
     below: 0.8
@@ -35,5 +35,5 @@
   - service: huawei_solar.set_maximum_feed_grid_power_percent
     data:
       power_percentage: 3
-      device_id: 0eb5649b85041cc761fe4843117b3c15
+      device_id: xxxx
   mode: single
